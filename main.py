@@ -41,7 +41,7 @@ def create_data_and_extract():
 
     st.title(" ! מערכת חישוב נתונים כספיים")
 
-    insert_date, supplier_name, total_pay = st.columns(3)
+    insert_date, supplier_name, total_pay, data_button_save = st.columns(4)
 
     with insert_date:
         insert_date = st.date_input(' הכנס תאריך ', value=None, min_value=None, max_value=None, key=None, help=None,
@@ -98,25 +98,25 @@ def create_data_and_extract():
         else:
             pass
 
+    with data_button_save:
+        if st.button('לחץ בשביל לשמור מידע ', key=None, help=None, on_click=None):
+            if os.path.isfile(sql_data):
+                pass
+            else:
+                cur.execute('CREATE TABLE suppliers(timestamp, date, supplier, first_pay, second_pay, third_pay, sum, avg, total_pay)')
 
-    if st.button('לחץ בשביל לשמור מידע ', key=None, help=None, on_click=None):
-        if os.path.isfile(sql_data):
-            pass
-        else:
-            cur.execute('CREATE TABLE suppliers(timestamp, date, supplier, first_pay, second_pay, third_pay, sum, avg, total_pay)')
+            conn.commit()
 
-        conn.commit()
+            df.to_sql('suppliers', conn, if_exists='append', index=False)
 
-        df.to_sql('suppliers', conn, if_exists='append', index=False)
-
-        dr = pd.read_sql_query("SELECT * FROM suppliers", conn)
-        dr.to_csv(str(select_data) + '.csv')
+            dr = pd.read_sql_query("SELECT * FROM suppliers", conn)
+            dr.to_csv(str(select_data) + '.csv')
 
 
-        read_select_data_csv = pd.read_csv(str(select_data) + '.csv')
+            read_select_data_csv = pd.read_csv(str(select_data) + '.csv')
 
-        st.dataframe(dr)
-        conn.close()
+            st.write('המידע נשמר')
+            conn.close()
     if st.button('לחץ בשביל לראות את המידע הקיים',  key=None, help=None, on_click=None):
         data_frame_from_csv = pd.read_csv(str(select_data) + '.csv')
         st.dataframe(data_frame_from_csv)
