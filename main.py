@@ -122,11 +122,17 @@ def create_data_and_extract():
         st.dataframe(data_frame_from_csv)
 
         dr3 = pd.read_sql_query("SELECT SUM(total_pay) FROM suppliers", conn)
-        dr3.to_csv('total_paid.csv')
-        total_paid = pd.read_csv('total_paid.csv')
+        if os.path.isfile('total_paid.csv'):
+            dr3 = pd.read_sql_query("SELECT SUM(total_pay) FROM suppliers", conn)
+            dr3.to_csv('total_paid.csv')
+            total_paid = pd.read_csv('total_paid.csv')
 
-        x = total_paid['SUM(total_pay)'][0]
-        st.subheader('שולם : ' + str(int(x)))
+            x = total_paid['SUM(total_pay)'][0]
+            st.subheader('שולם : ' + str(x))
+        else:
+            dr3.to_csv('total_paid.csv')
+
+
 
     with delete_suppliers:
         if st.button('לחץ למחוק ספק', key=None, help=None, on_click=None):
